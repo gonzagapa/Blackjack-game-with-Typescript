@@ -5,41 +5,29 @@ const typeCard_1 = require("../../domain/enum/typeCard");
 class GameSupervisor {
     constructor(deckPlayer) {
         this.deckPlayer = deckPlayer;
-        this.optionGame = 'NONE';
-        this.statusGame = "STILL";
-        this.bet = 0;
+        this._bet = 0;
+        this._status = 'hit';
     }
     //Check if the player has enough amount to debt
     checkPlayerBankRoll(amountToDebt) {
         return this.deckPlayer.getPlayer().getBankRoll() >= amountToDebt;
     }
     //Returns false if the total amount of the deck is less than 21
-    checkPlayerDeckValue() {
-        let flag = false;
-        if (this.getValueOfDeck() > 21) {
-            this.statusGame = "LOOSE";
-            flag = true;
-        }
-        else if (this.getValueOfDeck() == 21) {
-            this.statusGame = "WIN";
-        }
-        else {
-            this.statusGame = "STILL";
-        }
-        return flag;
+    deckValueGreater() {
+        return this.getValueOfDeck() > 21;
     }
     //TODO:Implementar la logica de las dos funciones
     getPayout(type = 0) {
         switch (type) {
             //Dealer busts
             case 1:
-                return this.bet * 2;
+                return this._bet * 2;
             //Player bet is returned (tie)
             case 2:
-                return this.bet;
+                return this._bet;
             //The player got black
             case 3:
-                return this.bet * 1.5;
+                return this._bet * 1.5;
             //The player got bust.
             default:
                 return 0;
@@ -50,14 +38,20 @@ class GameSupervisor {
     getValueOfDeck() {
         return this.deckPlayer.getTotalValue();
     }
+    get bet() {
+        return this._bet;
+    }
     setPlayerBet(betMatch) {
-        this.bet = betMatch;
+        this._bet = betMatch;
     }
     resetBet() {
-        this.bet = 0;
+        this._bet = 0;
     }
-    showCardsPlayers() {
-        return this.deckPlayer.showCards();
+    getKindOfPlayer() {
+        return this.deckPlayer.getPlayer().typePlayer.kind;
+    }
+    showCardsPlayers(canShow) {
+        return this.deckPlayer.showCards(canShow);
     }
     addCardtoDeck(Card) {
         if (Card.type === typeCard_1.typeCard.A) {
@@ -67,6 +61,12 @@ class GameSupervisor {
     }
     getPlayerBankRoll() {
         return this.deckPlayer.getPlayer().getBankRoll();
+    }
+    get status() {
+        return this._status;
+    }
+    set status(value) {
+        this._status = value;
     }
 }
 exports.GameSupervisor = GameSupervisor;

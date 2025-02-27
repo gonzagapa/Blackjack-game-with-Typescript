@@ -5,11 +5,9 @@ import {Card} from "../entities/Card";
 
 export interface GameActions{
     checkPlayerBankRoll(amountToDebt:number):boolean;
-    checkPlayerDeckValue():boolean;
+    deckValueGreater():boolean;
     getValueOfDeck():number;
     hitAnCard():void;
     getPayout(type:number):number;
     setPlayerBet(bet:number):void;
-    statusGame:"WIN"|"LOOSE"|"STILL";
-    optionGame: "HIT" | "Stand"|"NONE" ;
 }

@@ -28,8 +28,8 @@ export class DeckCard implements DeckAction{
         return this.cards;
     }
 
-    showCards():string{
-        if(this.player.typePlayer.kind === 'dealer'){
+    showCards(canShow?:boolean):string{
+        if(this.player.typePlayer.kind === 'dealer' && !canShow){
             //Not show de last card
             return this.cards.map((card,index)=>{
                 if(index === this.cards.length -1){

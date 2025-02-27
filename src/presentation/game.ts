@@ -8,8 +8,9 @@ import {shuffleArray} from "../aplication/shuffleAlgorithm";
 import {DeckCard} from "../aplication/usesCases/DeckCard";
 import {GameSupervisor} from "../aplication/usesCases/GameSupervisor";
 
-type actionPlayer = 'stand'| 'hit';
+type ActionPlayer = 'stand'| 'hit';
 
+type GameResult = 'win'| 'loose' | 'tide';
 
 const initDeckGame = (mapValues:Map<any,any>)=>{
     let cards:Card[] = [];
@@ -58,11 +59,14 @@ const initGame = () =>{
         getCardsForPlayer(supervisorDealer);
 
         //Showing the cards
-        //TODO:Make a Function
-        console.log(`Your hand: ${supervisorPlayer.showCardsPlayers()} (Total:${supervisorPlayer.getValueOfDeck()})`);
-        console.log(`Your hand: ${supervisorDealer.showCardsPlayers()}`);
+        showCards(supervisorPlayer, true);
+        showCards(supervisorDealer);
 
-        let action: actionPlayer = prompt('Your action (hit/stand):');
+        //Here we enter in the hit/stand dynamic
+        actionOfGames(supervisorPlayer);
+        actionOfGames(supervisorDealer);
+        checkWinner(supervisorPlayer,supervisorDealer)
+        console.log('Players fund:' + supervisorPlayer.getPlayerBankRoll());
 
         console.log('GoodBye');
         break;
@@ -89,9 +93,76 @@ const getCardsForPlayer = (player:GameSupervisor) => {
        player.addCardtoDeck(cardsGame.pop() as Card);
        player.addCardtoDeck(cardsGame.pop() as Card);
    }
-    //We have some cards on our deck
+    //We have already had cards on our deck
     else{
        player.addCardtoDeck(cardsGame.pop() as Card);
    }
 }
+
+const showCards = (player:GameSupervisor, canShow?:boolean) => {
+
+        console.log(`${player.getKindOfPlayer() === 'dealer'? `Dealer${player.status === 'hit' ? ' hit':"'s hand"}`: "Your hand"} : ${player.showCardsPlayers(canShow)} ${canShow ? `(Total:${player.getValueOfDeck()})` : ``} ${player.status === 'bust' ? '- bust': ''}`
+        );
+}
+
+const actionOfGames = (player:GameSupervisor) =>{
+    do{
+        let action: ActionPlayer = prompt('Your action (hit/stand):').toLowerCase() as ActionPlayer;
+        if(action === 'hit'){
+            getCardsForPlayer(player);
+            showCards(player,true);
+        }else{
+            player.status = 'stand'
+        }
+
+        if(player.deckValueGreater()){
+           player.status = 'bust';
+        }
+    }while(player.status === "hit"){}
+}
+
+const getMoney = (player:GameSupervisor, gameResult:GameResult) =>{
+    let newAmount
+    switch (gameResult){
+        case 'win':
+            newAmount = player.bet;
+            break;
+        case 'loose':
+            newAmount = -player.bet;
+            break;
+        default:
+            newAmount = 0;
+    }
+    player.setPlayerBankRoll(newAmount);
+}
+
+const checkWinner = (player:GameSupervisor, dealer:GameSupervisor) => {
+    let message = '';
+    let gameResult:GameResult = 'loose';
+    if(player.status !== 'bust'){
+
+        if(player.getValueOfDeck() === 21 ||
+            dealer.status === 'bust' ||
+            player.getValueOfDeck() > dealer.getValueOfDeck()
+            ){
+            message = `Your win ${player.bet}`;
+            gameResult = 'win';
+        }
+        else if(player.getValueOfDeck() === dealer.getValueOfDeck()){
+            message = `It's a push, your bet is returned: ${player.bet}`;
+            gameResult = 'tide';
+        }
+        else{
+            message = `Dealer wins, You lose:  ${player.bet}`
+        }
+
+    }else{
+       message = `You're bust and lose ${player.bet} `;
+    }
+
+    console.log(`${message}`);
+    getMoney(player,gameResult);
+}
+
+
 export  default initGame;

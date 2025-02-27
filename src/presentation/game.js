@@ -46,10 +46,11 @@ const initGame = () => {
         getCardsForPlayer(supervisorPlayer);
         getCardsForPlayer(supervisorDealer);
         //Showing the cards
-        //TODO:Make a Function
-        console.log(`Your hand: ${supervisorPlayer.showCardsPlayers()} (Total:${supervisorPlayer.getValueOfDeck()})`);
-        console.log(`Your hand: ${supervisorDealer.showCardsPlayers()}`);
-        let action = prompt('Your action (hit/stand):');
+        showCards(supervisorPlayer, true);
+        showCards(supervisorDealer);
+        //Here we enter in the hit/stand dynamic
+        actionOfGames(supervisorPlayer);
+        actionOfGames(supervisorDealer);
         console.log('GoodBye');
         break;
     } while (supervisorPlayer.getPlayerBankRoll() > 0);
@@ -72,9 +73,40 @@ const getCardsForPlayer = (player) => {
         player.addCardtoDeck(cardsGame.pop());
         player.addCardtoDeck(cardsGame.pop());
     }
-    //We have some cards on our deck
+    //We have already had cards on our deck
     else {
         player.addCardtoDeck(cardsGame.pop());
     }
+};
+const showCards = (player, canShow) => {
+    console.log(`${player.getKindOfPlayer() === 'dealer' ? "Dealer's" : "Your"} hand: ${player.showCardsPlayers(canShow)} ${canShow ? `(Total:${player.getValueOfDeck()})` : ``} ${player.status === 'bust' ? '- bust' : ''}`);
+};
+const actionOfGames = (player) => {
+    do {
+        let action = prompt('Your action (hit/stand):').toLowerCase();
+        if (action === 'hit') {
+            getCardsForPlayer(player);
+            showCards(player, true);
+        }
+        else {
+            player.status = 'stand';
+        }
+        if (player.deckValueGreater()) {
+            player.status = 'bust';
+        }
+    } while (player.status === "hit");
+    { }
+};
+const checkWinner = (player) => {
+    let message = '';
+    if (player.status !== 'bust') {
+        if (player.getValueOfDeck() === 21) {
+            message = `Your win ${player.bet}`;
+        }
+    }
+    else {
+        message = `You're bust and lose ${player.bet} `;
+    }
+    console.log(message);
 };
 exports.default = initGame;

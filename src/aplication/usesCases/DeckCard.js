@@ -18,8 +18,8 @@ class DeckCard {
     getDeck() {
         return this.cards;
     }
-    showCards() {
-        if (this.player.typePlayer.kind === 'dealer') {
+    showCards(canShow) {
+        if (this.player.typePlayer.kind === 'dealer' && !canShow) {
             //Not show de last card
             return this.cards.map((card, index) => {
                 if (index === this.cards.length - 1) {

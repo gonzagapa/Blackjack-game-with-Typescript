@@ -3,11 +3,12 @@ import {DeckCard} from "./DeckCard";
 import {Card} from "../../domain/entities/Card";
 import {typeCard} from "../../domain/enum/typeCard";
 
-export class GameSupervisor implements GameActions {
-    optionGame:"HIT" | "Stand"|"NONE" = 'NONE';
-    statusGame: "WIN" | "LOOSE" | "STILL" =  "STILL";
+type StatusOfPlayer = 'hit'|'stand'| 'bust'
 
-    private bet = 0;
+export class GameSupervisor implements GameActions {
+
+    private _bet = 0;
+    private _status:StatusOfPlayer = 'hit';
 
     constructor(public deckPlayer:DeckCard, ) {
     }
@@ -19,18 +20,9 @@ export class GameSupervisor implements GameActions {
     }
 
     //Returns false if the total amount of the deck is less than 21
-    checkPlayerDeckValue(): boolean {
-        let flag = false;
-        if(this.getValueOfDeck() > 21){
-            this.statusGame = "LOOSE";
-            flag = true;
-        }
-        else if(this.getValueOfDeck() == 21){
-            this.statusGame = "WIN";
-        }else{
-            this.statusGame = "STILL";
-        }
-        return flag;
+    deckValueGreater(): boolean {
+        return this.getValueOfDeck() > 21;
+
     }
 
     //TODO:Implementar la logica de las dos funciones
@@ -39,13 +31,13 @@ export class GameSupervisor implements GameActions {
         switch(type){
             //Dealer busts
             case 1:
-                return this.bet*2;
+                return this._bet*2;
             //Player bet is returned (tie)
             case 2:
-                return this.bet;
+                return this._bet;
             //The player got black
             case 3:
-                return this.bet * 1.5;
+                return this._bet * 1.5;
             //The player got bust.
             default:
                 return 0
@@ -59,17 +51,25 @@ export class GameSupervisor implements GameActions {
     getValueOfDeck(): number {
         return this.deckPlayer.getTotalValue();
     }
+    get bet(): number {
+        return this._bet;
+    }
+
 
     setPlayerBet(betMatch: number): void {
-        this.bet = betMatch;
+        this._bet = betMatch;
     }
 
     resetBet():void{
-        this.bet = 0;
+        this._bet = 0;
     }
 
-    showCardsPlayers(){
-        return this.deckPlayer.showCards()
+    getKindOfPlayer():string{
+        return this.deckPlayer.getPlayer().typePlayer.kind;
+    }
+
+    showCardsPlayers(canShow?:boolean):string{
+        return this.deckPlayer.showCards(canShow);
     }
     addCardtoDeck(Card:Card){
         if(Card.type === typeCard.A  ){
@@ -80,6 +80,17 @@ export class GameSupervisor implements GameActions {
 
     getPlayerBankRoll():number{
         return this.deckPlayer.getPlayer().getBankRoll()
+    }
+    setPlayerBankRoll(amountToDebt:number){
+        this.deckPlayer.getPlayer().increaseBankroll(amountToDebt);
+    }
+
+    get status(): StatusOfPlayer {
+        return this._status;
+    }
+
+    set status(value: StatusOfPlayer) {
+        this._status = value;
     }
 
 }
