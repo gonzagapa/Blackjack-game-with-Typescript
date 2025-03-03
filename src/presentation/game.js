@@ -91,7 +91,15 @@ const getCardsForPlayer = (player) => {
 };
 //TODO:Refactoring
 const showCards = (player, canShow) => {
-    console.log(`${player.getKindOfPlayer() === 'dealer' ? `Dealer${player.status === 'hit' ? ' hit' : "'s hand"}` : "Your hand"} : ${player.showCardsPlayers(canShow)} ${canShow ? `(Total:${player.getValueOfDeck()})` : ``} ${player.status === 'bust' ? '- bust' : ''}`);
+    let message = '';
+    let messageStatus = `${player.status === 'bust' ? '- bust' : player.status === 'blackjack' ? '- blackjack' : ''}`;
+    if (player.getKindOfPlayer() === 'player') {
+        message = `Your hand ${player.showCardsPlayers(canShow)} (Total:${player.getValueOfDeck()} ${messageStatus})`;
+    }
+    else {
+        message = `Dealer${player.status === 'hit' ? ' hit' : "'s hand"} :  ${player.showCardsPlayers(canShow)} ${canShow ? `(Total:${player.getValueOfDeck()})` : ``} ${messageStatus}`;
+    }
+    console.log(message);
 };
 const dealerBehavior = (player) => {
     if (player.getValueOfDeck() < 17) {
@@ -106,6 +114,7 @@ const actionOfGames = (player) => {
         action = isDealer ? dealerBehavior(player) : prompt('Your action (hit/stand):').toLowerCase();
         if (action === 'hit') {
             getCardsForPlayer(player);
+            player.status = 'hit';
         }
         else {
             player.status = 'stand';
