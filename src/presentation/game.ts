@@ -10,7 +10,7 @@ import {GameSupervisor} from "../aplication/usesCases/GameSupervisor";
 
 type ActionPlayer = 'stand'| 'hit';
 
-type GameResult = 'win'| 'loose' | 'tide';
+type GameResult = 'win'| 'loose' | 'tide'| 'blackjack';
 
 const initDeckGame = (mapValues:Map<any,any>)=>{
     let cards:Card[] = [];
@@ -45,7 +45,7 @@ const initGame = () =>{
     const supervisorPlayer = new GameSupervisor(DeckPlayer);
     const supervisorDealer = new GameSupervisor(DeckDealer);
 
-    do{
+
         console.log('WELCOME TO THE GAME');
         console.log(`Players fund: ${supervisorPlayer.getPlayerBankRoll()}`)
 
@@ -62,16 +62,27 @@ const initGame = () =>{
         showCards(supervisorPlayer, true);
         showCards(supervisorDealer);
 
-        //Here we enter in the hit/stand dynamic
-        actionOfGames(supervisorPlayer);
-        actionOfGames(supervisorDealer);
-        checkWinner(supervisorPlayer,supervisorDealer)
+        //Checking if one of them has Blackjakc
+        if(hasBlackJack(supervisorPlayer) || hasBlackJack(supervisorDealer)){
+            checkWinner(supervisorPlayer,supervisorDealer);
+        }else{
+            //Here we enter in the hit/stand dynamic
+            actionOfGames(supervisorPlayer);
+            showCards(supervisorDealer,true);
+            actionOfGames(supervisorDealer);
+            checkWinner(supervisorPlayer,supervisorDealer)
+        }
+
         console.log('Players fund:' + supervisorPlayer.getPlayerBankRoll());
 
-        console.log('GoodBye');
-        break;
+}
 
-    }while(supervisorPlayer.getPlayerBankRoll() > 0);
+const hasBlackJack = (player:GameSupervisor) =>{
+    if (player.getValueOfDeck() === 21 ) {
+        player.status = 'blackjack';
+        return true;
+    }
+    return false;
 }
 
 const checkingBet = (notPlaying:boolean, supervisorPlayer:GameSupervisor)=>{
@@ -88,7 +99,6 @@ const checkingBet = (notPlaying:boolean, supervisorPlayer:GameSupervisor)=>{
 
 const getCardsForPlayer = (player:GameSupervisor) => {
    //We have 0 cards
-    //Todo: If we have a Card type A, choose the corresponding value
     if(player.getValueOfDeck() === 0){
        player.addCardtoDeck(cardsGame.pop() as Card);
        player.addCardtoDeck(cardsGame.pop() as Card);
@@ -99,18 +109,28 @@ const getCardsForPlayer = (player:GameSupervisor) => {
    }
 }
 
+//TODO:Refactoring
 const showCards = (player:GameSupervisor, canShow?:boolean) => {
 
         console.log(`${player.getKindOfPlayer() === 'dealer'? `Dealer${player.status === 'hit' ? ' hit':"'s hand"}`: "Your hand"} : ${player.showCardsPlayers(canShow)} ${canShow ? `(Total:${player.getValueOfDeck()})` : ``} ${player.status === 'bust' ? '- bust': ''}`
         );
 }
 
+const dealerBehavior = (player:GameSupervisor):ActionPlayer => {
+    if(player.getValueOfDeck() < 17){
+        return 'hit';
+    }
+    return 'stand';
+}
+
 const actionOfGames = (player:GameSupervisor) =>{
+    let action: ActionPlayer
+    const isDealer = (player.getKindOfPlayer() === 'dealer');
     do{
-        let action: ActionPlayer = prompt('Your action (hit/stand):').toLowerCase() as ActionPlayer;
+        action =  isDealer ? dealerBehavior(player): prompt('Your action (hit/stand):').toLowerCase() as ActionPlayer;
         if(action === 'hit'){
             getCardsForPlayer(player);
-            showCards(player,true);
+
         }else{
             player.status = 'stand'
         }
@@ -118,6 +138,7 @@ const actionOfGames = (player:GameSupervisor) =>{
         if(player.deckValueGreater()){
            player.status = 'bust';
         }
+        showCards(player,true);
     }while(player.status === "hit"){}
 }
 
@@ -130,6 +151,9 @@ const getMoney = (player:GameSupervisor, gameResult:GameResult) =>{
         case 'loose':
             newAmount = -player.bet;
             break;
+        case 'blackjack':
+            newAmount = player.bet * 1.5;
+            break
         default:
             newAmount = 0;
     }
@@ -139,9 +163,19 @@ const getMoney = (player:GameSupervisor, gameResult:GameResult) =>{
 const checkWinner = (player:GameSupervisor, dealer:GameSupervisor) => {
     let message = '';
     let gameResult:GameResult = 'loose';
-    if(player.status !== 'bust'){
 
-        if(player.getValueOfDeck() === 21 ||
+    if(player.status === 'blackjack'){
+        gameResult = 'blackjack'
+    }
+
+    //We have a tide
+    else if(player.status === 'bust' && dealer.status === 'bust'){
+        gameResult = 'tide';
+    }
+
+    else if(player.status !== 'bust'){
+
+        if(player.getValueOfDeck() === 21||
             dealer.status === 'bust' ||
             player.getValueOfDeck() > dealer.getValueOfDeck()
             ){

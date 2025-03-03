@@ -6,7 +6,7 @@ class GameSupervisor {
     constructor(deckPlayer) {
         this.deckPlayer = deckPlayer;
         this._bet = 0;
-        this._status = 'hit';
+        this._status = '';
     }
     //Check if the player has enough amount to debt
     checkPlayerBankRoll(amountToDebt) {
@@ -33,8 +33,6 @@ class GameSupervisor {
                 return 0;
         }
     }
-    hitAnCard() {
-    }
     getValueOfDeck() {
         return this.deckPlayer.getTotalValue();
     }
@@ -43,9 +41,6 @@ class GameSupervisor {
     }
     setPlayerBet(betMatch) {
         this._bet = betMatch;
-    }
-    resetBet() {
-        this._bet = 0;
     }
     getKindOfPlayer() {
         return this.deckPlayer.getPlayer().typePlayer.kind;
@@ -61,6 +56,9 @@ class GameSupervisor {
     }
     getPlayerBankRoll() {
         return this.deckPlayer.getPlayer().getBankRoll();
+    }
+    setPlayerBankRoll(amountToDebt) {
+        this.deckPlayer.getPlayer().increaseBankroll(amountToDebt);
     }
     get status() {
         return this._status;

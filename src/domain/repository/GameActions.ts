@@ -7,7 +7,6 @@ export interface GameActions{
     checkPlayerBankRoll(amountToDebt:number):boolean;
     deckValueGreater():boolean;
     getValueOfDeck():number;
-    hitAnCard():void;
     getPayout(type:number):number;
     setPlayerBet(bet:number):void;
 }

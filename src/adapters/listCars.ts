@@ -1,5 +1,4 @@
 import {typeCard} from "../domain/enum/typeCard";
-//A complate map of cards for the game
 
 const deckForGame = new Map();
 deckForGame.set(typeCard.A, 1);

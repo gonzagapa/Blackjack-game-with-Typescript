@@ -3,12 +3,14 @@ import {DeckCard} from "./DeckCard";
 import {Card} from "../../domain/entities/Card";
 import {typeCard} from "../../domain/enum/typeCard";
 
-type StatusOfPlayer = 'hit'|'stand'| 'bust'
+type StatusOfPlayer = 'hit'|'stand'| 'bust'| 'blackjack' | ''
+
+
 
 export class GameSupervisor implements GameActions {
 
     private _bet = 0;
-    private _status:StatusOfPlayer = 'hit';
+    private _status:StatusOfPlayer = '';
 
     constructor(public deckPlayer:DeckCard, ) {
     }
@@ -44,10 +46,6 @@ export class GameSupervisor implements GameActions {
         }
     }
 
-    hitAnCard(): void {
-
-    }
-
     getValueOfDeck(): number {
         return this.deckPlayer.getTotalValue();
     }
@@ -58,10 +56,6 @@ export class GameSupervisor implements GameActions {
 
     setPlayerBet(betMatch: number): void {
         this._bet = betMatch;
-    }
-
-    resetBet():void{
-        this._bet = 0;
     }
 
     getKindOfPlayer():string{

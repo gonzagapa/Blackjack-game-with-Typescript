@@ -15,11 +15,6 @@ export class DeckCard implements DeckAction{
     getPlayer():Player{
         return this.player;
     }
-
-    setCards(cards:Card[]){
-        this.cards = [...cards]
-    }
-
     addCard(card: Card): void {
         this.cards.push(card);
     }

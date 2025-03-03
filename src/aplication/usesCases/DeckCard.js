@@ -9,9 +9,6 @@ class DeckCard {
     getPlayer() {
         return this.player;
     }
-    setCards(cards) {
-        this.cards = [...cards];
-    }
     addCard(card) {
         this.cards.push(card);
     }

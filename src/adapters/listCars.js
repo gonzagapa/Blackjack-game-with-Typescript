@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeCard_1 = require("../domain/enum/typeCard");
-//A complate map of cards for the game
 const deckForGame = new Map();
 deckForGame.set(typeCard_1.typeCard.A, 1);
 deckForGame.set(typeCard_1.typeCard.two, 2);
